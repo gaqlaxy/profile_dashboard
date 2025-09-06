@@ -172,7 +172,6 @@ export const fieldPositions = {
   raasi: { top: 211, left: 2, size: 70 },
   raasiCells: [
     { top: 0, left: 18, w: 19, h: 16 }, // 1
-    { top: 0, left: 37, w: 19, h: 16 }, // 2
     { top: 20, left: 60, w: 18, h: 16 }, // 3
     { top: 40, left: 60, w: 18, h: 16 }, // 4
     { top: 60, left: 60, w: 18, h: 16 }, // 5
@@ -183,6 +182,7 @@ export const fieldPositions = {
     { top: 0, left: 0, w: 18, h: 16 }, // 10
     { top: 0, left: 60, w: 18, h: 16 }, // 11
     { top: 20, left: 40, w: 18, h: 16 }, // 12
+    { top: 0, left: 37, w: 19, h: 16 }, // 2
   ],
 
   navamsa: { top: 250, right: 30, size: 70 },

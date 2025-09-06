@@ -431,7 +431,7 @@ export default function MatrimonyProfileBuilder() {
             {fieldPositions.raasiCells.map((cellPos, i) => (
               <div
                 key={i}
-                className="absolute border text-[9pt] flex items-center justify-center"
+                className="absolute border text-[9pt] flex items-center justify-center outline-1 outline-red-700"
                 style={{
                   top: `${cellPos.top}mm`,
                   left: `${cellPos.left}mm`,
