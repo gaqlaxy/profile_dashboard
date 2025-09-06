@@ -379,7 +379,7 @@ export default function MatrimonyProfileBuilder() {
           </div>
 
           {/* Raasi grid */}
-          <div
+          {/* <div
             className="absolute grid grid-cols-4 grid-rows-3 border"
             style={{
               top: `${fieldPositions.raasi.top}mm`,
@@ -396,10 +396,10 @@ export default function MatrimonyProfileBuilder() {
                 {val}
               </div>
             ))}
-          </div>
+          </div> */}
 
           {/* Navamsa grid */}
-          <div
+          {/* <div
             className="absolute grid grid-cols-4 grid-rows-3 border"
             style={{
               top: `${fieldPositions.navamsa.top}mm`,
@@ -414,6 +414,58 @@ export default function MatrimonyProfileBuilder() {
                 className="border text-[9pt] flex items-center justify-center"
               >
                 {val}
+              </div>
+            ))}
+          </div> */}
+
+          {/* Raasi grid */}
+          <div
+            className="absolute"
+            style={{
+              top: `${fieldPositions.raasi.top}mm`,
+              left: `${fieldPositions.raasi.left}mm`,
+              width: `${fieldPositions.raasi.size}mm`,
+              height: `${fieldPositions.raasi.size}mm`,
+            }}
+          >
+            {fieldPositions.raasiCells.map((cellPos, i) => (
+              <div
+                key={i}
+                className="absolute border text-[9pt] flex items-center justify-center"
+                style={{
+                  top: `${cellPos.top}mm`,
+                  left: `${cellPos.left}mm`,
+                  width: `${cellPos.w}mm`,
+                  height: `${cellPos.h}mm`,
+                }}
+              >
+                {formData.raasi[i]}
+              </div>
+            ))}
+          </div>
+
+          {/* Navamsa grid */}
+          <div
+            className="absolute"
+            style={{
+              top: `${fieldPositions.navamsa.top}mm`,
+              right: `${fieldPositions.navamsa.right}mm`,
+              width: `${fieldPositions.navamsa.size}mm`,
+              height: `${fieldPositions.navamsa.size}mm`,
+            }}
+          >
+            {fieldPositions.navamsaCells.map((cellPos, i) => (
+              <div
+                key={i}
+                className="absolute border text-[9pt] flex items-center justify-center"
+                style={{
+                  top: `${cellPos.top}mm`,
+                  left: `${cellPos.left}mm`,
+                  width: `${cellPos.w}mm`,
+                  height: `${cellPos.h}mm`,
+                }}
+              >
+                {formData.navamsa[i]}
               </div>
             ))}
           </div>
