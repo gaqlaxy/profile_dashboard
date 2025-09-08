@@ -31,7 +31,7 @@ export default function MatrimonyProfileBuilder() {
       <div className="border-r p-5 overflow-y-auto">
         <h1 className="text-xl font-bold mb-4">Matrimony Profile Form</h1>
 
-        {Object.keys(initialFormData).map((key) => {
+        {/* {Object.keys(initialFormData).map((key) => {
           if (key === "raasi" || key === "navamsa" || key === "photo")
             return null;
 
@@ -46,6 +46,34 @@ export default function MatrimonyProfileBuilder() {
                 onChange={(e) => handleChange(key, e.target.value)}
                 className="mt-1 w-full rounded-lg border px-3 py-2 outline-none ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500"
               />
+            </label>
+          );
+        })} */}
+        {Object.keys(initialFormData).map((key) => {
+          if (key === "raasi" || key === "navamsa" || key === "photo")
+            return null;
+
+          return (
+            <label key={key} className="block mb-3">
+              <span className="block text-sm font-medium capitalize">
+                {key}
+              </span>
+
+              {["work", "address"].includes(key) ? (
+                <textarea
+                  value={formData[key]}
+                  onChange={(e) => handleChange(key, e.target.value)}
+                  rows={3}
+                  className="mt-1 w-full rounded-lg border px-3 py-2 outline-none ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500"
+                />
+              ) : (
+                <input
+                  type="text"
+                  value={formData[key]}
+                  onChange={(e) => handleChange(key, e.target.value)}
+                  className="mt-1 w-full rounded-lg border px-3 py-2 outline-none ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500"
+                />
+              )}
             </label>
           );
         })}
@@ -104,13 +132,17 @@ export default function MatrimonyProfileBuilder() {
           {Object.keys(fieldPositions).map((key) => {
             if (key === "photo" || key === "raasi" || key === "navamsa")
               return null;
+
+            const isMultiline = ["work", "address"].includes(key);
             return (
               <div
                 key={key}
-                className="absolute text-[11pt]"
+                className="absolute text-[11pt] whitespace-pre-wrap"
                 style={{
                   top: `${fieldPositions[key].top}mm`,
                   left: `${fieldPositions[key].left}mm`,
+                  width: isMultiline ? "60mm" : "auto", // set width for wrapping
+                  lineHeight: "1.2",
                 }}
               >
                 {formData[key]}
