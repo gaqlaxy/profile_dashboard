@@ -137,7 +137,7 @@ export const initialFormData = {
 
   // Expectations
   expectation: "",
-  houseType: "", // own | rental | lease
+  // houseType: "", // own | rental | lease
   // Address
   address: "",
 
@@ -186,9 +186,9 @@ export const fieldPositions = {
   photo: { top: 55, right: -0.4, width: 102, height: 147 },
 
   houseTypeTicks: {
-    own: { top: 230, left: 60 },   // test positions
-    rental: { top: 230, left: 90 },
-    lease: { top: 230, left: 120 },
+    own: { top: 202, left: 60 },   // test positions
+    rental: { top: 202, left: 6 },
+    lease: { top: 202, left: 27 },
   },
 
   // Horoscope wrapper + cells

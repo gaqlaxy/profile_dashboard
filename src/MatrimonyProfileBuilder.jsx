@@ -84,6 +84,20 @@ export default function MatrimonyProfileBuilder() {
           <input type="file" accept="image/*" onChange={handlePhoto} />
         </label>
 
+        <label className="block mb-3">
+          <span className="block text-sm font-medium">House Type</span>
+          <select
+            value={formData.houseType}
+            onChange={(e) => handleChange("houseType", e.target.value)}
+            className="mt-1 w-full rounded-lg border px-3 py-2 outline-none ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Select...</option>
+            <option value="own">Own</option>
+            <option value="rental">Rental</option>
+            <option value="lease">Lease</option>
+          </select>
+        </label>
+
         {/* Raasi */}
         <h3 className="font-semibold">Raasi (12 boxes)</h3>
         <div className="grid grid-cols-4 gap-1 mb-4">
@@ -221,6 +235,23 @@ export default function MatrimonyProfileBuilder() {
               </div>
             ))}
           </div>
+
+          {/* House Type Tick */}
+          {formData.houseType && (
+            <div
+              className="absolute text-[14pt] font-bold text-blue-600"
+              style={{
+                top: `${
+                  fieldPositions.houseTypeTicks[formData.houseType].top
+                }mm`,
+                left: `${
+                  fieldPositions.houseTypeTicks[formData.houseType].left
+                }mm`,
+              }}
+            >
+              ✅
+            </div>
+          )}
         </div>
       </div>
     </div>
