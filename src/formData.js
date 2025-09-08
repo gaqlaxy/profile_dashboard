@@ -192,15 +192,14 @@ export const fieldPositions = {
     { top: 49, left: 56.3, w: 18, h: 15.5 }, // 5 (bottom right)
     { top: 49, left: 37.6, w: 18, h: 15.5 }, // 6
     { top: 49, left: 18.3, w: 18.5, h: 15.5 }, // 7 (bottom middle)
-    { top: 49, left: 0, w: 18, h: 15.5 },  // 8
-    { top: 33, left: 0, w: 18, h: 16 },  // 9
-    { top: 16, left: 0, w: 18, h: 17 },  // 10
-    { top: 0, left: 0, w: 18, h: 16 },   // 11 (top left)
-    { top: 0, left: 18, w: 19, h: 16 },  // 12
+    { top: 49, left: 0, w: 18, h: 15.5 }, // 8
+    { top: 33, left: 0, w: 18, h: 16 }, // 9
+    { top: 16, left: 0, w: 18, h: 17 }, // 10
+    { top: 0, left: 0, w: 18, h: 16 }, // 11 (top left)
+    { top: 0, left: 18, w: 19, h: 16 }, // 12
   ],
 
-
-  navamsa: { top: 250, right: 30, size: 70 },
+  navamsa: { top: 211, right: 60, size: 70 },
   // navamsaCells: [
   //   { top: 0, left: 20, w: 18, h: 16 },
   //   { top: 0, left: 40, w: 18, h: 16 },
@@ -216,19 +215,17 @@ export const fieldPositions = {
   //   { top: 20, left: 40, w: 18, h: 16 },
   // ],
   navamsaCells: [
-    { top: 0, left: 20, w: 18, h: 16 }, // 1 (top middle)
-    { top: 0, left: 40, w: 18, h: 16 }, // 2 (top right)
-    { top: 20, left: 60, w: 18, h: 16 }, // 3
-    { top: 40, left: 60, w: 18, h: 16 }, // 4
-    { top: 60, left: 60, w: 18, h: 16 }, // 5 (bottom right)
-    { top: 60, left: 40, w: 18, h: 16 }, // 6
-    { top: 60, left: 20, w: 18, h: 16 }, // 7 (bottom middle)
-    { top: 60, left: 0, w: 18, h: 16 },  // 8
-    { top: 40, left: 0, w: 18, h: 16 },  // 9
-    { top: 20, left: 0, w: 18, h: 16 },  // 10
-    { top: 0, left: 0, w: 18, h: 16 },   // 11 (top left)
-    { top: 0, left: 60, w: 18, h: 16 },  // 12
+    { top: 0, left: 19, w: 18, h: 15 }, // 1 (top middle)
+    { top: 0, left: 37, w: 18, h: 15 }, // 2 (top right)
+    { top: 0, left: 55, w: 18, h: 15 }, // 12
+    { top: 15, left: 55, w: 18, h: 18 }, // 3
+    { top: 33, left: 55, w: 18, h: 16 }, // 4
+    { top: 49, left: 55, w: 18, h: 15.5 }, // 5 (bottom right)
+    { top: 49, left: 37, w: 18, h: 15.5 }, // 6
+    { top: 49, left: 19, w: 18, h: 15.5 }, // 7 (bottom middle)
+    { top: 49, left: 0, w: 19, h: 15.5 }, // 8
+    { top: 33, left: 0, w: 19, h: 16 }, // 9
+    { top: 15, left: 0, w: 19, h: 18 }, // 10
+    { top: 0, left: 0, w: 19, h: 15 }, // 11 (top left)
   ],
-
 };
-

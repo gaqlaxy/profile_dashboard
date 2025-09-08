@@ -177,7 +177,7 @@ export default function MatrimonyProfileBuilder() {
             {fieldPositions.navamsaCells.map((cellPos, i) => (
               <div
                 key={i}
-                className="absolute border text-[9pt] flex items-center justify-center"
+                className="absolute text-[9pt] flex items-center justify-center"
                 style={{
                   top: `${cellPos.top}mm`,
                   left: `${cellPos.left}mm`,
