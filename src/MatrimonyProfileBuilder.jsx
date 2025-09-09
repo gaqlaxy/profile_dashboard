@@ -53,17 +53,24 @@ export default function MatrimonyProfileBuilder() {
     try {
       // html2canvas options tuned for high-quality A4 output
       const canvas = await html2canvas(input, {
-        scale: 2,
+        // scale: 2,
+        // useCORS: true,
+        // allowTaint: true,
+        // backgroundColor: null,
+        // scrollX: -window.scrollX,
+        // scrollY: -window.scrollY,
+        // windowWidth: input.scrollWidth,
+        // windowHeight: input.scrollHeight,
+        scale: 1.5, //set it to 2 for more size
+        scrollX: 0,
+        scrollY: 0,
         useCORS: true,
-        allowTaint: true,
         backgroundColor: null,
-        scrollX: -window.scrollX,
-        scrollY: -window.scrollY,
-        windowWidth: input.scrollWidth,
-        windowHeight: input.scrollHeight,
+        width: input.offsetWidth,
+        height: input.offsetHeight,
       });
 
-      const imgData = canvas.toDataURL("image/png");
+      const imgData = canvas.toDataURL("image/png", 1);
 
       const pdf = new jsPDF("p", "mm", "a4");
       const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -88,24 +95,21 @@ export default function MatrimonyProfileBuilder() {
       <div className="border-r p-5 overflow-y-auto">
         <h1 className="text-xl font-bold mb-4">Matrimony Profile Form</h1>
 
-        {/* {Object.keys(initialFormData).map((key) => {
-          if (key === "raasi" || key === "navamsa" || key === "photo")
-            return null;
+        <label className="block mb-3">
+          <span className="block text-sm font-medium">Gender</span>
+          <select
+            value={formData.gender}
+            onChange={(e) => handleChange("gender", e.target.value)}
+            className="mt-1 w-full rounded-lg border px-3 py-2 outline-none ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Select</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </label>
 
-          return (
-            <label key={key} className="block mb-3">
-              <span className="block text-sm font-medium capitalize">
-                {key}
-              </span>
-              <input
-                type="text"
-                value={formData[key]}
-                onChange={(e) => handleChange(key, e.target.value)}
-                className="mt-1 w-full rounded-lg border px-3 py-2 outline-none ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500"
-              />
-            </label>
-          );
-        })} */}
+        {/* Overlay text fields */}
+
         {Object.keys(initialFormData).map((key) => {
           if (key === "raasi" || key === "navamsa" || key === "photo")
             return null;
@@ -209,7 +213,7 @@ export default function MatrimonyProfileBuilder() {
           />
 
           {/* Overlay text fields */}
-          {Object.keys(fieldPositions).map((key) => {
+          {/* {Object.keys(fieldPositions).map((key) => {
             if (key === "photo" || key === "raasi" || key === "navamsa")
               return null;
 
@@ -223,6 +227,36 @@ export default function MatrimonyProfileBuilder() {
                   left: `${fieldPositions[key].left}mm`,
                   width: isMultiline ? "60mm" : "auto", // set width for wrapping
                   lineHeight: "1.2",
+                }}
+              >
+                {formData[key]}
+              </div>
+            );
+          })} */}
+          {/* Overlay text fields */}
+          {Object.keys(fieldPositions).map((key) => {
+            if (key === "photo" || key === "raasi" || key === "navamsa")
+              return null;
+            const isMultiline = ["work", "address"].includes(key);
+            return (
+              <div
+                key={key}
+                className="absolute text-[11pt] whitespace-pre-wrap"
+                style={{
+                  top: `${fieldPositions[key].top}mm`,
+                  left: `${fieldPositions[key].left}mm`,
+                  width: isMultiline ? "60mm" : "auto",
+                  lineHeight: "1.2",
+                  color:
+                    formData.gender === "male"
+                      ? "brown"
+                      : formData.gender === "female"
+                      ? "green"
+                      : "black",
+                  fontFamily:
+                    formData.language === "ta"
+                      ? "'Latha', 'Noto Sans Tamil', sans-serif"
+                      : "Arial, sans-serif",
                 }}
               >
                 {formData[key]}
@@ -269,6 +303,10 @@ export default function MatrimonyProfileBuilder() {
                   left: `${cellPos.left}mm`,
                   width: `${cellPos.w}mm`,
                   height: `${cellPos.h}mm`,
+                  fontFamily:
+                    formData.language === "ta"
+                      ? "'Latha', 'Noto Sans Tamil', sans-serif"
+                      : "Arial, sans-serif",
                 }}
               >
                 {formData.raasi[i]}
@@ -295,6 +333,10 @@ export default function MatrimonyProfileBuilder() {
                   left: `${cellPos.left}mm`,
                   width: `${cellPos.w}mm`,
                   height: `${cellPos.h}mm`,
+                  fontFamily:
+                    formData.language === "ta"
+                      ? "'Latha', 'Noto Sans Tamil', sans-serif"
+                      : "Arial, sans-serif",
                 }}
               >
                 {formData.navamsa[i]}
