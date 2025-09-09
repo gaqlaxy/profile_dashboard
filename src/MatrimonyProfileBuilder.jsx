@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { initialFormData, fieldPositions } from "./formData";
 import bg from "/bgtemplate.png";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+import { useRef } from "react";
 
 export default function MatrimonyProfileBuilder() {
   const [formData, setFormData] = useState(initialFormData);
@@ -24,6 +27,60 @@ export default function MatrimonyProfileBuilder() {
       return { ...prev, [type]: updated };
     });
   };
+  const previewRef = useRef();
+
+  async function handleDownloadPDF() {
+    const input = previewRef.current;
+    if (!input) return alert("Preview not found");
+
+    // inject temporary CSS to avoid modern color functions (oklch) breaking html2canvas
+    const override = document.createElement("style");
+    override.id = "html2canvas-fix";
+    override.innerHTML = `
+    /* Narrow override: only affects the preview area and its descendants */
+    #a4-preview, #a4-preview * {
+      color: #000 !important;
+      background-color: transparent !important;
+      border-color: #000 !important;
+      box-shadow: none !important;
+      text-shadow: none !important;
+    }
+    /* ensure fonts render crisply */
+    #a4-preview { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  `;
+    document.head.appendChild(override);
+
+    try {
+      // html2canvas options tuned for high-quality A4 output
+      const canvas = await html2canvas(input, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: null,
+        scrollX: -window.scrollX,
+        scrollY: -window.scrollY,
+        windowWidth: input.scrollWidth,
+        windowHeight: input.scrollHeight,
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      // Fit the image to the page exactly
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save("matrimony-profile.pdf");
+    } catch (err) {
+      console.error("PDF export failed:", err);
+      alert("Export failed: " + (err.message || err));
+    } finally {
+      // remove the temporary override so UI returns to normal
+      const existing = document.getElementById("html2canvas-fix");
+      if (existing) existing.remove();
+    }
+  }
 
   return (
     <div className="h-screen w-full grid grid-cols-1 lg:grid-cols-[420px_1fr]">
@@ -123,11 +180,20 @@ export default function MatrimonyProfileBuilder() {
             />
           ))}
         </div>
+
+        <button
+          onClick={handleDownloadPDF}
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded"
+        >
+          Save as PDF
+        </button>
       </div>
 
       {/* RIGHT: A4 Preview */}
       <div className="p-5 overflow-auto bg-gray-50">
         <div
+          id="a4-preview"
+          ref={previewRef}
           className="relative shadow-xl mx-auto"
           style={{
             width: "210mm",
