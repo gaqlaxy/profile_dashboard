@@ -4,6 +4,7 @@ import bg from "/bgtemplate.png";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { useRef } from "react";
+import { registerLathaFont } from "./latha";
 
 export default function MatrimonyProfileBuilder() {
   const [formData, setFormData] = useState(initialFormData);
@@ -29,64 +30,180 @@ export default function MatrimonyProfileBuilder() {
   };
   const previewRef = useRef();
 
+  // async function handleDownloadPDF() {
+  //   const input = previewRef.current;
+  //   if (!input) return alert("Preview not found");
+
+  //   // inject temporary CSS to avoid modern color functions (oklch) breaking html2canvas
+  //   const override = document.createElement("style");
+  //   override.id = "html2canvas-fix";
+  //   override.innerHTML = `
+  //   /* Narrow override: only affects the preview area and its descendants */
+  //   #a4-preview, #a4-preview * {
+  //     color: #000 !important;
+  //     background-color: transparent !important;
+  //     border-color: #000 !important;
+  //     box-shadow: none !important;
+  //     text-shadow: none !important;
+  //   }
+  //   /* ensure fonts render crisply */
+  //   #a4-preview { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  // `;
+  //   document.head.appendChild(override);
+
+  //   try {
+  //     // html2canvas options tuned for high-quality A4 output
+  //     const canvas = await html2canvas(input, {
+  //       // scale: 2,
+  //       // useCORS: true,
+  //       // allowTaint: true,
+  //       // backgroundColor: null,
+  //       // scrollX: -window.scrollX,
+  //       // scrollY: -window.scrollY,
+  //       // windowWidth: input.scrollWidth,
+  //       // windowHeight: input.scrollHeight,
+  //       scale: 1.5, //set it to 2 for more size
+  //       scrollX: 0,
+  //       scrollY: 0,
+  //       useCORS: true,
+  //       backgroundColor: null,
+  //       width: input.offsetWidth,
+  //       height: input.offsetHeight,
+  //     });
+
+  //     const imgData = canvas.toDataURL("image/png", 1);
+
+  //     const pdf = new jsPDF("p", "mm", "a4");
+  //     const pdfWidth = pdf.internal.pageSize.getWidth();
+  //     const pdfHeight = pdf.internal.pageSize.getHeight();
+
+  //     // Fit the image to the page exactly
+  //     pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+  //     pdf.save("matrimony-profile.pdf");
+  //   } catch (err) {
+  //     console.error("PDF export failed:", err);
+  //     alert("Export failed: " + (err.message || err));
+  //   } finally {
+  //     // remove the temporary override so UI returns to normal
+  //     const existing = document.getElementById("html2canvas-fix");
+  //     if (existing) existing.remove();
+  //   }
+  // }
+
   async function handleDownloadPDF() {
-    const input = previewRef.current;
-    if (!input) return alert("Preview not found");
+    const pdf = new jsPDF("p", "mm", "a4");
 
-    // inject temporary CSS to avoid modern color functions (oklch) breaking html2canvas
-    const override = document.createElement("style");
-    override.id = "html2canvas-fix";
-    override.innerHTML = `
-    /* Narrow override: only affects the preview area and its descendants */
-    #a4-preview, #a4-preview * {
-      color: #000 !important;
-      background-color: transparent !important;
-      border-color: #000 !important;
-      box-shadow: none !important;
-      text-shadow: none !important;
+    // A4 size
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+
+    // Add background image (template)
+    const img = new Image();
+    img.src = bg;
+    await new Promise((resolve) => {
+      img.onload = resolve;
+    });
+    pdf.addImage(img, "PNG", 0, 0, pdfWidth, pdfHeight);
+
+    // Base font + size
+    registerLathaFont(pdf);
+
+    pdf.setFont("Latha", "normal");
+    pdf.setFontSize(12);
+
+    // Tamil text (typed or copy-pasted)
+    pdf.text("தமிழ் உரை சோதனை", 20, 30);
+
+    // English text still works
+    pdf.setFont("helvetica", "normal");
+    pdf.text("English Test", 20, 50);
+
+    pdf.save("tamil.pdf");
+
+    // Font color based on gender
+    const color =
+      formData.gender === "male"
+        ? [165, 42, 42] // brown
+        : formData.gender === "female"
+        ? [0, 128, 0] // green
+        : [0, 0, 0];
+    pdf.setTextColor(...color);
+
+    // Overlay fields
+    Object.keys(fieldPositions).forEach((key) => {
+      if (["photo", "raasi", "navamsa", "houseTypeTicks"].includes(key)) return;
+      const pos = fieldPositions[key];
+      const value = formData[key];
+      if (!value) return;
+
+      // Tamil or English font
+      const font = formData.language === "ta" ? "Latha" : "helvetica";
+      try {
+        pdf.setFont(font, "normal");
+      } catch {
+        pdf.setFont("helvetica", "normal");
+      }
+
+      if (["work", "address"].includes(key)) {
+        // Multiline wrap
+        const splitText = pdf.splitTextToSize(value, 60); // 60mm width
+        pdf.text(splitText, pos.left, pos.top);
+      } else {
+        pdf.text(value, pos.left, pos.top);
+      }
+    });
+
+    // Raasi cells
+    pdf.setFont("Latha", "normal");
+    fieldPositions.raasiCells.forEach((cell, i) => {
+      if (!formData.raasi[i]) return;
+      pdf.text(
+        formData.raasi[i],
+        cell.left + cell.w / 2,
+        cell.top + cell.h / 2,
+        {
+          align: "center",
+          baseline: "middle",
+        }
+      );
+    });
+
+    // Navamsa cells
+    pdf.setFont("Latha", "normal");
+    fieldPositions.navamsaCells.forEach((cell, i) => {
+      if (!formData.navamsa[i]) return;
+      pdf.text(
+        formData.navamsa[i],
+        cell.left + cell.w / 2,
+        cell.top + cell.h / 2,
+        {
+          align: "center",
+          baseline: "middle",
+        }
+      );
+    });
+
+    // Photo
+    if (formData.photo) {
+      pdf.addImage(
+        formData.photo,
+        "JPEG",
+        pdfWidth - fieldPositions.photo.right - fieldPositions.photo.width,
+        fieldPositions.photo.top,
+        fieldPositions.photo.width,
+        fieldPositions.photo.height
+      );
     }
-    /* ensure fonts render crisply */
-    #a4-preview { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-  `;
-    document.head.appendChild(override);
 
-    try {
-      // html2canvas options tuned for high-quality A4 output
-      const canvas = await html2canvas(input, {
-        // scale: 2,
-        // useCORS: true,
-        // allowTaint: true,
-        // backgroundColor: null,
-        // scrollX: -window.scrollX,
-        // scrollY: -window.scrollY,
-        // windowWidth: input.scrollWidth,
-        // windowHeight: input.scrollHeight,
-        scale: 1.5, //set it to 2 for more size
-        scrollX: 0,
-        scrollY: 0,
-        useCORS: true,
-        backgroundColor: null,
-        width: input.offsetWidth,
-        height: input.offsetHeight,
-      });
-
-      const imgData = canvas.toDataURL("image/png", 1);
-
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      // Fit the image to the page exactly
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save("matrimony-profile.pdf");
-    } catch (err) {
-      console.error("PDF export failed:", err);
-      alert("Export failed: " + (err.message || err));
-    } finally {
-      // remove the temporary override so UI returns to normal
-      const existing = document.getElementById("html2canvas-fix");
-      if (existing) existing.remove();
+    // House Type tick
+    if (formData.houseType) {
+      const tickPos = fieldPositions.houseTypeTicks[formData.houseType];
+      pdf.setFontSize(14);
+      pdf.text("✓", tickPos.left, tickPos.top);
     }
+
+    // Final save
+    pdf.save("matrimony-profile.pdf");
   }
 
   return (
@@ -213,26 +330,7 @@ export default function MatrimonyProfileBuilder() {
           />
 
           {/* Overlay text fields */}
-          {/* {Object.keys(fieldPositions).map((key) => {
-            if (key === "photo" || key === "raasi" || key === "navamsa")
-              return null;
 
-            const isMultiline = ["work", "address"].includes(key);
-            return (
-              <div
-                key={key}
-                className="absolute text-[11pt] whitespace-pre-wrap"
-                style={{
-                  top: `${fieldPositions[key].top}mm`,
-                  left: `${fieldPositions[key].left}mm`,
-                  width: isMultiline ? "60mm" : "auto", // set width for wrapping
-                  lineHeight: "1.2",
-                }}
-              >
-                {formData[key]}
-              </div>
-            );
-          })} */}
           {/* Overlay text fields */}
           {Object.keys(fieldPositions).map((key) => {
             if (key === "photo" || key === "raasi" || key === "navamsa")

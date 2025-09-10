@@ -10,3 +10,8 @@
 :root {
   --ta: "Noto Sans Tamil", system-ui, -apple-system, Segoe UI, Arial, sans-serif;
 }
+
+#a4-preview,
+#a4-preview * {
+  font-family: "Noto Sans Tamil", sans-serif !important;
+}
