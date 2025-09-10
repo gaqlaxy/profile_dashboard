@@ -30,66 +30,6 @@ export default function MatrimonyProfileBuilder() {
   };
   const previewRef = useRef();
 
-  // async function handleDownloadPDF() {
-  //   const input = previewRef.current;
-  //   if (!input) return alert("Preview not found");
-
-  //   // inject temporary CSS to avoid modern color functions (oklch) breaking html2canvas
-  //   const override = document.createElement("style");
-  //   override.id = "html2canvas-fix";
-  //   override.innerHTML = `
-  //   /* Narrow override: only affects the preview area and its descendants */
-  //   #a4-preview, #a4-preview * {
-  //     color: #000 !important;
-  //     background-color: transparent !important;
-  //     border-color: #000 !important;
-  //     box-shadow: none !important;
-  //     text-shadow: none !important;
-  //   }
-  //   /* ensure fonts render crisply */
-  //   #a4-preview { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-  // `;
-  //   document.head.appendChild(override);
-
-  //   try {
-  //     // html2canvas options tuned for high-quality A4 output
-  //     const canvas = await html2canvas(input, {
-  //       // scale: 2,
-  //       // useCORS: true,
-  //       // allowTaint: true,
-  //       // backgroundColor: null,
-  //       // scrollX: -window.scrollX,
-  //       // scrollY: -window.scrollY,
-  //       // windowWidth: input.scrollWidth,
-  //       // windowHeight: input.scrollHeight,
-  //       scale: 1.5, //set it to 2 for more size
-  //       scrollX: 0,
-  //       scrollY: 0,
-  //       useCORS: true,
-  //       backgroundColor: null,
-  //       width: input.offsetWidth,
-  //       height: input.offsetHeight,
-  //     });
-
-  //     const imgData = canvas.toDataURL("image/png", 1);
-
-  //     const pdf = new jsPDF("p", "mm", "a4");
-  //     const pdfWidth = pdf.internal.pageSize.getWidth();
-  //     const pdfHeight = pdf.internal.pageSize.getHeight();
-
-  //     // Fit the image to the page exactly
-  //     pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-  //     pdf.save("matrimony-profile.pdf");
-  //   } catch (err) {
-  //     console.error("PDF export failed:", err);
-  //     alert("Export failed: " + (err.message || err));
-  //   } finally {
-  //     // remove the temporary override so UI returns to normal
-  //     const existing = document.getElementById("html2canvas-fix");
-  //     if (existing) existing.remove();
-  //   }
-  // }
-
   async function handleDownloadPDF() {
     const pdf = new jsPDF("p", "mm", "a4");
 
@@ -97,7 +37,7 @@ export default function MatrimonyProfileBuilder() {
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
 
-    // Add background image (template)
+    // Add background image
     const img = new Image();
     img.src = bg;
     await new Promise((resolve) => {
@@ -105,20 +45,8 @@ export default function MatrimonyProfileBuilder() {
     });
     pdf.addImage(img, "PNG", 0, 0, pdfWidth, pdfHeight);
 
-    // Base font + size
+    // Register Tamil font
     registerLathaFont(pdf);
-
-    pdf.setFont("Latha", "normal");
-    pdf.setFontSize(12);
-
-    // Tamil text (typed or copy-pasted)
-    pdf.text("தமிழ் உரை சோதனை", 20, 30);
-
-    // English text still works
-    pdf.setFont("helvetica", "normal");
-    pdf.text("English Test", 20, 50);
-
-    pdf.save("tamil.pdf");
 
     // Font color based on gender
     const color =
@@ -129,6 +57,9 @@ export default function MatrimonyProfileBuilder() {
         : [0, 0, 0];
     pdf.setTextColor(...color);
 
+    // Utility: detect Tamil characters
+    const isTamil = (text) => /[\u0B80-\u0BFF]/.test(text);
+
     // Overlay fields
     Object.keys(fieldPositions).forEach((key) => {
       if (["photo", "raasi", "navamsa", "houseTypeTicks"].includes(key)) return;
@@ -136,8 +67,8 @@ export default function MatrimonyProfileBuilder() {
       const value = formData[key];
       if (!value) return;
 
-      // Tamil or English font
-      const font = formData.language === "ta" ? "Latha" : "helvetica";
+      // Decide font
+      const font = isTamil(value) ? "Latha" : "helvetica";
       try {
         pdf.setFont(font, "normal");
       } catch {
@@ -145,8 +76,8 @@ export default function MatrimonyProfileBuilder() {
       }
 
       if (["work", "address"].includes(key)) {
-        // Multiline wrap
-        const splitText = pdf.splitTextToSize(value, 60); // 60mm width
+        // Multiline
+        const splitText = pdf.splitTextToSize(value, 60);
         pdf.text(splitText, pos.left, pos.top);
       } else {
         pdf.text(value, pos.left, pos.top);
@@ -154,33 +85,63 @@ export default function MatrimonyProfileBuilder() {
     });
 
     // Raasi cells
-    pdf.setFont("Latha", "normal");
+    // fieldPositions.raasiCells.forEach((cell, i) => {
+    //   if (!formData.raasi[i]) return;
+    //   const font = isTamil(formData.raasi[i]) ? "Latha" : "helvetica";
+    //   pdf.setFont(font, "normal");
+    //   pdf.text(
+    //     formData.raasi[i],
+    //     cell.left + cell.w / 2,
+    //     cell.top + cell.h / 2,
+    //     { align: "center", baseline: "middle" }
+    //   );
+    // });
+    // Raasi cells
     fieldPositions.raasiCells.forEach((cell, i) => {
       if (!formData.raasi[i]) return;
-      pdf.text(
-        formData.raasi[i],
-        cell.left + cell.w / 2,
-        cell.top + cell.h / 2,
-        {
-          align: "center",
-          baseline: "middle",
-        }
-      );
+      const font = isTamil(formData.raasi[i]) ? "Latha" : "helvetica";
+      pdf.setFont(font, "normal");
+
+      const x = fieldPositions.raasi.left + cell.left + cell.w / 2;
+      const y = fieldPositions.raasi.top + cell.top + cell.h / 2;
+
+      pdf.text(formData.raasi[i], x, y, {
+        align: "center",
+        baseline: "middle",
+      });
     });
 
     // Navamsa cells
-    pdf.setFont("Latha", "normal");
+    // fieldPositions.navamsaCells.forEach((cell, i) => {
+    //   if (!formData.navamsa[i]) return;
+    //   const font = isTamil(formData.navamsa[i]) ? "Latha" : "helvetica";
+    //   pdf.setFont(font, "normal");
+    //   pdf.text(
+    //     formData.navamsa[i],
+    //     cell.left + cell.w / 2,
+    //     cell.top + cell.h / 2,
+    //     { align: "center", baseline: "middle" }
+    //   );
+    // });
+    // Navamsa cells
     fieldPositions.navamsaCells.forEach((cell, i) => {
       if (!formData.navamsa[i]) return;
-      pdf.text(
-        formData.navamsa[i],
-        cell.left + cell.w / 2,
-        cell.top + cell.h / 2,
-        {
-          align: "center",
-          baseline: "middle",
-        }
-      );
+      const font = isTamil(formData.navamsa[i]) ? "Latha" : "helvetica";
+      pdf.setFont(font, "normal");
+
+      // Navamsa is positioned using "right", so calculate from total width
+      const x =
+        pdf.internal.pageSize.getWidth() -
+        fieldPositions.navamsa.right -
+        fieldPositions.navamsa.size +
+        cell.left +
+        cell.w / 2;
+      const y = fieldPositions.navamsa.top + cell.top + cell.h / 2;
+
+      pdf.text(formData.navamsa[i], x, y, {
+        align: "center",
+        baseline: "middle",
+      });
     });
 
     // Photo
@@ -195,14 +156,14 @@ export default function MatrimonyProfileBuilder() {
       );
     }
 
-    // House Type tick
+    // House type tick
     if (formData.houseType) {
       const tickPos = fieldPositions.houseTypeTicks[formData.houseType];
       pdf.setFontSize(14);
       pdf.text("✓", tickPos.left, tickPos.top);
     }
 
-    // Final save
+    // ✅ Final save (only once)
     pdf.save("matrimony-profile.pdf");
   }
 
